@@ -167,7 +167,7 @@ An example source file, demonstrating the correct commenting and spacing for the
 
 ### Spaces vs. Tabs 
 
-Use only spaces, and indent 2 spaces at a time. We use spaces for indentation.
+Use only spaces, and indent 4 spaces at a time. We use spaces for indentation.
 Do not use tabs in your code.
 
 You should set your editor to emit spaces when you hit the tab key, and to trim
@@ -175,10 +175,10 @@ trailing spaces on lines.
 
 ### Line Length 
 
-The maximum line length for Objective-C files is 100 columns.
+The maximum line length for Objective-C files is 160 columns.
 
 You can make violations easier to spot by enabling *Preferences > Text Editing >
-Page guide at column: 100* in Xcode.
+Page guide at column: 160* in Xcode.
 
 ### Method Declarations and Definitions 
 
@@ -240,13 +240,15 @@ for (int i = 0; i < 5; ++i) {
 while (test) {};
 ```
 
-Braces may be omitted when a loop body or conditional statement fits on a single
+Braces must not be omitted when a loop body or conditional statement fits on a single
 line.
 
 ```objectivec 
 // GOOD:
 
-if (hasSillyName) LaughOutLoud();
+if (hasSillyName) {
+  LaughOutLoud();
+}
 
 for (int i = 0; i < 10; i++) {
   BlowTheHorn();
@@ -310,27 +312,6 @@ switch (i) {
 }
 ```
 
-### Expressions 
-
-Use a space around binary operators and assignments. Omit a space for a unary
-operator. Do not add spaces inside parentheses.
-
-```objectivec 
-// GOOD:
-
-x = 0;
-v = w * x + y / z;
-v = -y * (x + z);
-```
-
-Factors in an expression may omit spaces.
-
-```objectivec 
-// GOOD:
-
-v = w*x + y/z;
-```
-
 ### Method Invocations 
 
 Method invocations should be formatted much like method declarations.
@@ -385,42 +366,6 @@ alignment:
 
 Invocations containing multiple inlined blocks may have their parameter names
 left-aligned at a four space indent.
-
-### Function Calls 
-
-Function calls should include as many parameters as fit on each line, except
-where shorter lines are needed for clarity or documentation of the parameters.
-
-Continuation lines for function parameters may be indented to align with the
-opening parenthesis, or may have a four-space indent.
-
-```objectivec 
-// GOOD:
-
-CFArrayRef array = CFArrayCreate(kCFAllocatorDefault, objects, numberOfObjects,
-                                 &kCFTypeArrayCallBacks);
-
-NSString *string = NSLocalizedStringWithDefaultValue(@"FEET", @"DistanceTable",
-    resourceBundle,  @"%@ feet", @"Distance for multiple feet");
-
-UpdateTally(scores[x] * y + bases[x],  // Score heuristic.
-            x, y, z);
-
-TransformImage(image,
-               x1, x2, x3,
-               y1, y2, y3,
-               z1, z2, z3);
-```
-
-Use local variables with descriptive names to shorten function calls and reduce
-nesting of calls.
-
-```objectivec 
-// GOOD:
-
-double scoreHeuristic = scores[x] * y + bases[x];
-UpdateTally(scoreHeuristic, x, y, z);
-```
 
 ### Exceptions 
 
@@ -487,7 +432,7 @@ int completedConnectionsCount = 0;
 tickets = [[NSMutableArray alloc] init];
 userInfo = [someObject object];
 port = [network port];
-NSDate *gAppLaunchDate;
+NSDate *appLaunchDate;
 ```
 
 ```objectivec 
@@ -523,9 +468,6 @@ Extension | Type
 --------- | ---------------------------------
 .h        | C/C++/Objective-C header file
 .m        | Objective-C implementation file
-.mm       | Objective-C++ implementation file
-.cc       | Pure C++ implementation file
-.c        | C implementation file
 
 Files containing code that may be shared across projects or used in a large
 project should have a clearly unique name, typically including the project or
@@ -545,7 +487,7 @@ for classes of large applications that depend on external libraries.
 
 ### Category Names 
 
-Category names should start with a 3 character prefix identifying the category
+Category names should start with prefix identifying the category
 as part of a project or open for general use.
 
 The category name should incorporate the name of the class it's extending. For
@@ -670,39 +612,12 @@ for more details on Objective-C naming.
 These guidelines are for Objective-C methods only. C++ method names continue to
 follow the rules set in the C++ style guide.
 
-### Function Names 
-
-Regular functions have mixed case.
-
-Ordinarily, functions should start with a capital letter and have a capital
-letter for each new word (a.k.a. "[Camel
-Case](https://en.wikipedia.org/wiki/Camel_case)" or "Pascal case").
-
-```objectivec 
-// GOOD:
-
-static void AddTableEntry(NSString *tableEntry);
-static BOOL DeleteFile(char *filename);
-```
-
-Because Objective-C does not provide namespacing, non-static functions should
-have a prefix that minimizes the chance of a name collision.
-
-```objectivec 
-// GOOD:
-
-extern NSTimeZone *GTMGetDefaultTimeZone();
-extern NSString *GTMGetURLScheme(NSURL *URL);
-```
-
 ### Variable Names 
 
 Variable names typically start with a lowercase and use mixed case to delimit
 words.
 
-Instance variables have leading underscores. File scope or global variables have
-a prefix `g`. For example: `myLocalVariable`, `_myInstanceVariable`,
-`gMyGlobalVariable`.
+Instance variables have leading underscores. For example: `myLocalVariable`, `_myInstanceVariable`.
 
 #### Common Variable Names 
 
@@ -710,25 +625,12 @@ Readers should be able to infer the variable type from the name, but do not use
 Hungarian notation for syntactic attributes, such as the static type of a
 variable (int or pointer).
 
-File scope or global variables (as opposed to constants) declared outside the
-scope of a method or function should be rare, and should have the prefix g.
-
-```objectivec 
-// GOOD:
-
-static int gGlobalCounter;
-```
-
 #### Instance Variables 
 
 Instance variable names are mixed case and should be prefixed with an
 underscore, like `_usernameTextField`.
 
-NOTE: Google's previous convention for Objective-C ivars was a trailing
-underscore. Existing projects may opt to continue using trailing underscores in
-new code in order to maintain consistency within the project codebase.
-Consistency of prefix or suffix underscores should be maintained within each
-class.
+NOTE: Avoid declaring instance variables directly. Instead, use properties.
 
 #### Constants 
 
@@ -762,15 +664,6 @@ typedef NS_ENUM(NSInteger, DisplayTinge) {
   DisplayTingeGreen = 1,
   DisplayTingeBlue = 2,
 };
-```
-
-Constants may use a lowercase k prefix when appropriate:
-
-```objectivec 
-// GOOD:
-
-static const int kFileCount = 12;
-static NSString *const kUserKey = @"kUserKey";
 ```
 
 ## Types and Declarations 
@@ -832,7 +725,7 @@ for (NSUInteger counter = numberOfObjects - 1; counter > 0; --counter)  // AVOID
 Unsigned integers may be used for flags and bitmasks, though often NS_OPTIONS or
 NS_ENUM will be more appropriate.
 
-### Types with Inconsistent Sizes 
+### Types with Inconsistent Sizes (REVISIT)
 
 Due to sizes that differ in 32- and 64-bit builds, avoid types long, NSInteger,
 NSUInteger, and CGFloat except when matching system interfaces.
@@ -862,7 +755,7 @@ NSInteger scalar2 = proto.longValue;  // AVOID.
 File and buffer sizes often exceed 32-bit limits, so they should be declared
 using `int64_t`, not with `long`, `NSInteger`, or `NSUInteger`.
 
-## Comments 
+## Comments (RESUME FROM HERE)
 
 Comments are absolutely vital to keeping our code readable. The following rules
 describe what you should comment and where. But remember: while comments are
