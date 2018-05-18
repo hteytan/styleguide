@@ -796,13 +796,13 @@ categories, protocol declarations, and enums.
 // GOOD:
 
 /**
- * A delegate for NSApplication to handle notifications about app
- * launch and shutdown. Owned by the main app controller.
+ A delegate for NSApplication to handle notifications about app
+ launch and shutdown. Owned by the main app controller.
  */
 @interface MyAppDelegate : NSObject {
   /**
-   * The background task in progress, if any. This is initialized
-   * to the value UIBackgroundTaskInvalid.
+   The background task in progress, if any. This is initialized
+   to the value UIBackgroundTaskInvalid.
    */
   UIBackgroundTaskIdentifier _backgroundTaskID;
 }
@@ -913,57 +913,6 @@ Doxygen formatting is also suitable for identifying symbols.
 /** @param maximum The highest value for @c count. */
 ```
 
-### Object Ownership 
-
-For objects not managed by ARC, make the pointer ownership model as explicit as
-possible when it falls outside the most common Objective-C usage idioms.
-
-#### Manual Reference Counting 
-
-Instance variables for NSObject-derived objects are presumed to be retained; if
-they are not retained, they should be either commented as weak or declared with
-the `__weak` lifetime qualifier.
-
-An exception is in Mac software for instance variables labeled as `@IBOutlets`,
-which are presumed to not be retained.
-
-Where instance variables are pointers to Core Foundation, C++, and other
-non-Objective-C objects, they should always be declared with strong and weak
-comments to indicate which pointers are and are not retained. Core Foundation
-and other non-Objective-C object pointers require explicit memory management,
-even when building for automatic reference counting.
-
-Examples of strong and weak declarations:
-
-```objectivec 
-// GOOD:
-
-@interface MyDelegate : NSObject
-
-@property(nonatomic) NSString *doohickey;
-@property(nonatomic, weak) NSString *parent;
-
-@end
-
-
-@implementation MyDelegate {
-  IBOutlet NSButton *_okButton;  // Normal NSControl; implicitly weak on Mac only
-
-  AnObjcObject *_doohickey;  // My doohickey
-  __weak MyObjcParent *_parent;  // To send messages back (owns this instance)
-
-  // non-NSObject pointers...
-  CWackyCPPClass *_wacky;  // Strong, some cross-platform object
-  CFDictionaryRef *_dict;  // Strong
-}
-@end
-```
-
-#### Automatic Reference Counting 
-
-Object ownership and lifetime are explicit when using ARC, so no additional
-comments are required for automatically retained objects.
-
 ## C Language Features 
 
 ### Macros 
@@ -1032,20 +981,6 @@ Examples of acceptable macro use include assertion and debug logging macros
 that are conditionally compiled based on build settings—often, these are
 not compiled into release builds.
 
-### Nonstandard Extensions 
-
-Nonstandard extensions to C/Objective-C may not be used unless otherwise
-specified.
-
-Compilers support various extensions that are not part of standard C. Examples
-include compound statement expressions (e.g. `foo = ({ int x; Bar(&x); x }))`
-and variable-length arrays.
-
-`__attribute__` is an approved exception, as it is used in Objective-C API
-specifications.
-
-The binary form of the conditional operator, `A ?: B`, is an approved exception.
-
 ## Cocoa and Objective-C Features 
 
 ### Identify Designated Initializer 
@@ -1092,22 +1027,6 @@ to](https://developer.apple.com/library/mac/documentation/General/Conceptual/Coc
 `0` (except for isa), so don't clutter up the init method by re-initializing
 variables to `0` or `nil`.
 
-### Instance Variables In Headers Should Be @protected or @private 
-
-Instance variables should typically be declared in implementation files or
-auto-synthesized by properties. When ivars are declared in a header file, they
-should be marked `@protected` or `@private`.
-
-```objectivec 
-// GOOD:
-
-@interface MyClass : NSObject {
- @protected
-  id _myInstanceVariable;
-}
-@end
-```
-
 ### Avoid +new 
 
 Do not invoke the `NSObject` class method `new`, nor override it in a subclass.
@@ -1133,50 +1052,6 @@ Since internal methods are not really private, it's easy to accidentally
 override a superclass's "private" method, thus making a very difficult bug to
 squash. In general, private methods should have a fairly unique name that will
 prevent subclasses from unintentionally overriding them.
-
-### #import and #include 
-
-`#import` Objective-C and Objective-C++ headers, and `#include` C/C++ headers.
-
-Choose between `#import` and `#include` based on the language of the header that
-you are including.
-
-
-When including a header that uses Objective-C or Objective-C++, use `#import`.
-When including a standard C or C++ header, use `#include`.
-The header should provide its own `#define` guard.
-
-### Order of Includes 
-
-The standard order for header inclusion is the related header, operating system
-headers, language library headers, and finally groups of headers for other
-dependencies.
-
-The related header precedes others to ensure it has no hidden dependencies.
-For implementation files the related header is the header file.
-For test files the related header is the header containing the tested interface.
-
-A blank line may separate logically distinct groups of included headers.
-
-Import headers using their path relative to the project's source directory.
-
-```objectivec 
-// GOOD:
-
-#import "ProjectX/BazViewController.h"
-
-#import <Foundation/Foundation.h>
-
-#include <unistd.h>
-#include <vector>
-
-#include "base/basictypes.h"
-#include "base/integral_types.h"
-#include "util/math/mathutil.h"
-
-#import "ProjectX/BazModel.h"
-#import "Shared/Util/Foo.h"
-```
 
 ### Use Umbrella Headers for System Frameworks 
 
@@ -1342,24 +1217,6 @@ we don't `@throw`. Use of `@try`, `@catch`, and `@finally` are allowed when
 required to properly use 3rd party code or libraries. If you do use them, please
 document exactly which methods you expect to throw.
 
-### `nil` Checks 
-
-Use `nil` checks for logic flow only.
-
-Use `nil` pointer checks for logic flow of the application, not for preventing
-crashes when sending messages. Sending a message to `nil` [reliably
-returns](http://www.sealiesoftware.com/blog/archive/2012/2/29/objc_explain_return_value_of_message_to_nil.html)
-`nil` as a pointer, zero as an integer or floating-point value, structs
-initialized to `0`, and `_Complex` values equal to `{0, 0}`.
-
-Note that this applies to `nil` as a message target, not as a parameter value.
-Individual methods may or may not safely handle `nil` parameter values.
-
-Note too that this is distinct from checking C/C++ pointers and block pointers
-against `NULL`, which the runtime does not handle and will cause your
-application to crash. You still need to make sure you do not dereference a
-`NULL` pointer.
-
 ### BOOL Pitfalls 
 
 Be careful when converting general integral values to `BOOL`. Avoid comparing
@@ -1471,84 +1328,3 @@ client code, block pointers should be used for callbacks only where they can be
 explicitly released after they have been called or once they are no longer
 needed. Otherwise, callbacks should be done via weak delegate or target
 pointers.
-
-## Objective-C++ 
-
-### Style Matches the Language 
-
-Within an Objective-C++ source file, follow the style for the language of the
-function or method you're implementing. In order to minimize clashes between the
-differing naming styles when mixing Cocoa/Objective-C and C++, follow the style
-of the method being implemented.
-
-For code in an `@implementation` block, use the Objective-C naming rules. For
-code in a method of a C++ class, use the C++ naming rules.
-
-For code in an Objective-C++ file outside of a class implementation, be
-consistent within the file.
-
-```objectivec++ 
-// GOOD:
-
-// file: cross_platform_header.h
-
-class CrossPlatformAPI {
- public:
-  ...
-  int DoSomethingPlatformSpecific();  // impl on each platform
- private:
-  int an_instance_var_;
-};
-
-// file: mac_implementation.mm
-#include "cross_platform_header.h"
-
-// A typical Objective-C class, using Objective-C naming.
-@interface MyDelegate : NSObject {
- @private
-  int _instanceVar;
-  CrossPlatformAPI* _backEndObject;
-}
-
-- (void)respondToSomething:(id)something;
-
-@end
-
-@implementation MyDelegate
-
-- (void)respondToSomething:(id)something {
-  // bridge from Cocoa through our C++ backend
-  _instanceVar = _backEndObject->DoSomethingPlatformSpecific();
-  NSString* tempString = [NSString stringWithFormat:@"%d", _instanceVar];
-  NSLog(@"%@", tempString);
-}
-
-@end
-
-// The platform-specific implementation of the C++ class, using
-// C++ naming.
-int CrossPlatformAPI::DoSomethingPlatformSpecific() {
-  NSString* temp_string = [NSString stringWithFormat:@"%d", an_instance_var_];
-  NSLog(@"%@", temp_string);
-  return [temp_string intValue];
-}
-```
-
-Projects may opt to use an 80 column line length limit for consistency with
-Google's C++ style guide.
-
-## Objective-C Style Exceptions 
-
-### Indicating style exceptions 
-
-Lines of code that are not expected to adhere to these style recommendations
-require `// NOLINT` at the end of the line or `// NOLINTNEXTLINE` at the end of
-the previous line. Sometimes it is required that parts of Objective-C code must
-ignore these style recommendations (for example code may be machine generated or
-code constructs are such that its not possible to style correctly).
-
-A `// NOLINT` comment on that line or `// NOLINTNEXTLINE` on the previous line
-can be used to indicate to the reader that code is intentionally ignoring style
-guidelines. In addition these annotations can also be picked up by automated
-tools such as linters and handle code correctly. Note that there is a single
-space between `//` and `NOLINT*`.
