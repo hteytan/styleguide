@@ -1049,6 +1049,19 @@ pre-compiled and can be loaded much more quickly. In addition, remember to use
 ...
 ```
 
+### Use Properties Instead of Instance Variables
+
+Avoid manually declaring instance variables. Instead use properties. If LLVM 
+can synthesize the variable autmoatically, then let it. 
+
+### Avoid Accessing Instance Variables Directly
+
+Instance variables should only be accessed directly in the initializer, getter 
+methods, setter methods, and dealloc.
+
+Accessing instance variables directly outside of getter/setter methods removes 
+a layer of abstraction and makes subclassing fragile.
+
 ### Avoid Messaging the Current Object Within Initializers and `-dealloc`
 
 Code in initializers and `-dealloc` should avoid invoking instance methods.
