@@ -755,7 +755,7 @@ NSInteger scalar2 = proto.longValue;  // AVOID.
 File and buffer sizes often exceed 32-bit limits, so they should be declared
 using `int64_t`, not with `long`, `NSInteger`, or `NSUInteger`.
 
-## Comments (RESUME FROM HERE)
+## Comments
 
 Comments are absolutely vital to keeping our code readable. The following rules
 describe what you should comment and where. But remember: while comments are
