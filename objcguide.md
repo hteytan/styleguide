@@ -725,36 +725,6 @@ for (NSUInteger counter = numberOfObjects - 1; counter > 0; --counter)  // AVOID
 Unsigned integers may be used for flags and bitmasks, though often NS_OPTIONS or
 NS_ENUM will be more appropriate.
 
-### Types with Inconsistent Sizes (REVISIT)
-
-Due to sizes that differ in 32- and 64-bit builds, avoid types long, NSInteger,
-NSUInteger, and CGFloat except when matching system interfaces.
-
-Types long, NSInteger, NSUInteger, and CGFloat vary in size between 32- and
-64-bit builds. Use of these types is appropriate when handling values exposed by
-system interfaces, but they should be avoided for most other computations.
-
-```objectivec 
-// GOOD:
-
-int32_t scalar1 = proto.intValue;
-
-int64_t scalar2 = proto.longValue;
-
-NSUInteger numberOfObjects = array.count;
-
-CGFloat offset = view.bounds.origin.x;
-```
-
-```objectivec 
-// AVOID:
-
-NSInteger scalar2 = proto.longValue;  // AVOID.
-```
-
-File and buffer sizes often exceed 32-bit limits, so they should be declared
-using `int64_t`, not with `long`, `NSInteger`, or `NSUInteger`.
-
 ## Comments
 
 Comments are absolutely vital to keeping our code readable. The following rules
